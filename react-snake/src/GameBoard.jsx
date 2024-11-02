@@ -1,24 +1,52 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Stage, Layer, Rect } from "react-konva";
 
 const BOARD_SIZE = 20;
 const CELL_SIZE = 20;
 
-function GameBoard()
+function GameBoard(props)
 {
-    const [snake, setSnake] = useState([{ x: 10, y: 10 }]);
-    const [food, setFood] = useState({ x: 5, y: 5 });
-    const [direction, setDirection] = useState({ x: 0, y: 1 });
+    const [canChangeDir, setCanChangeDir] = useState(true);
 
     const handleKeyPress = (e) => {
+
+        if (!canChangeDir || props.gameState != "Playing")
+        {
+            return;
+        }
+
         switch (e.key)
         {
-            case "ArrowUp": setDirection({ x: 0, y: -1 }); break;
-            case "ArrowDown": setDirection({ x: 0, y: 1 }); break;
-            case "ArrowLeft": setDirection({ x: -1, y: 0 }); break;
-            case "ArrowRight": setDirection({ x: 1, y: 0 }); break;
+            case "ArrowUp":
+                if (props.direction.y == 0)
+                {
+                    props.setDirection({ x: 0, y: -1 });
+                }
+                break;
+            case "ArrowDown":
+                if (props.direction.y == 0)
+                {
+                    props.setDirection({ x: 0, y: 1 });
+                }
+                break;
+            case "ArrowLeft":
+                if (props.direction.x == 0)
+                {
+                    props.setDirection({ x: -1, y: 0 });
+                }
+                break;
+            case "ArrowRight":
+                if (props.direction.x == 0)
+                {
+                    props.setDirection({ x: 1, y: 0 });
+                }
+                break;
             default: break;
         }
+
+        setCanChangeDir(false);
+        setTimeout(() => {setCanChangeDir(true)}, 80);
+
     };
 
     useEffect(() => {
@@ -28,26 +56,43 @@ function GameBoard()
             clearInterval(interval);
             document.removeEventListener('keydown', handleKeyPress);
         };
-    }, [snake, direction]);
+    }, [props.snake, props.direction, props.gameState]);
+
+    const outOfBounds = (head) =>
+    {
+        return head.x >= BOARD_SIZE * CELL_SIZE || head.x < 0 || head.y >= BOARD_SIZE * CELL_SIZE || head.y < 0;
+    }
 
     const moveSnake = () => {
+
+        if (props.gameState != "Playing")
+        {
+            return;
+        }
+
         const newHead = {
-            x: (snake[0].x + direction.x + BOARD_SIZE) % BOARD_SIZE,
-            y: (snake[0].y + direction.y + BOARD_SIZE) % BOARD_SIZE,
+            x: (props.snake[0].x + props.direction.x * CELL_SIZE),
+            y: (props.snake[0].y + props.direction.y * CELL_SIZE),
         };
 
-        const newSnake = [newHead, ...snake];
-
-        if (newHead.x === food.x && newHead.y === food.y)
+        if (outOfBounds(newHead) || props.snake.some((segment) => segment.x === newHead.x && segment.y === newHead.y))
         {
-            setFood(generateFood());
+            props.setGameState("Game over!");
+            return;
+        }
+
+        const newSnake = [newHead, ...props.snake];
+
+        if (newHead.x === props.food.x && newHead.y === props.food.y)
+        {
+            props.setFood(generateFood());
         }
         else
         {
             newSnake.pop();
         }
 
-        setSnake(newSnake);
+        props.setSnake(newSnake);
     };
 
   const generateFood = () => {
@@ -61,7 +106,7 @@ function GameBoard()
     }
 
     const freePositions = allPositions.filter(
-        (pos) => !snake.some((segment) => segment.x === pos.x && segment.y === pos.y)
+        (pos) => !props.snake.some((segment) => segment.x === pos.x && segment.y === pos.y)
     );
 
     const randomIndex = Math.floor(Math.random() * freePositions.length);
@@ -79,7 +124,7 @@ function GameBoard()
         }}
     >
         <Layer>
-            {snake.map((segment, i) => (
+            {props.snake.map((segment, i) => (
                 <Rect
                     key={i}
                     x={segment.x * CELL_SIZE}
@@ -91,8 +136,8 @@ function GameBoard()
             ))}
 
             <Rect
-                x={food.x * CELL_SIZE}
-                y={food.y * CELL_SIZE}
+                x={props.food.x * CELL_SIZE}
+                y={props.food.y * CELL_SIZE}
                 width={CELL_SIZE}
                 height={CELL_SIZE}
                 fill="red"
