@@ -11,11 +11,13 @@ function App()
     const MIN_SIZE = 5;
     const MAX_SIZE = 60;
     const INIT_COUNTDOWN = 3;
+    const INIT_SPEED = 100;
+    const INIT_SIZE = 20;
 
     const [boardDim, setBoardDim] = useState(Math.floor(Math.min(window.innerWidth, window.innerHeight) * 0.8));
-    const [boardSize, setBoardSize] = useState(20);   // 20x20 grid by default
+    const [boardSize, setBoardSize] = useState(INIT_SIZE);   // 20x20 grid by default
     const [cellSize, setCellSize] = useState(Math.floor(boardDim / boardSize));
-    const [speed, setSpeed] = useState(100);
+    const [speed, setSpeed] = useState(INIT_SPEED);
     const [snake, setSnake] = useState([{x: 2, y: 1}]);
     const [food, setFood] = useState({x: 4, y: 4});
     const [score, setScore] = useState(0);
