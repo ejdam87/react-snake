@@ -8,13 +8,19 @@ function Settings(props)
             <Form.Label>Game speed</Form.Label>
             <Form.Range
                 disabled={props.gameState == "Playing"}
+                min={0}
+                max={props.maxSpeed - 40}
+                value={props.speed}
+                onChange={ (e) => {
+                    props.setSpeed(e.target.value);
+                } }
             />
 
             <Form.Label>Number of grid cells</Form.Label>
             <Form.Range
                 disabled={props.gameState == "Playing"}
-                min={20}
-                max={60}
+                min={props.minSize}
+                max={props.maxSize}
                 value={props.boardSize}
                 onChange={ (e) => {
                     props.setBoardSize(e.target.value);
