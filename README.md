@@ -13,5 +13,6 @@ Currently, the application is not deployed, thus, there are no transpiled JS fil
 The rules of the game follow the original ones. To control the snake, the arrow keys are used. Currently, there are two parameters that can be configured:
 - Game speed
 - Size of the board
-Before the start of the new game, the 3 second timer is running.
+
+Before the start of the new game, there is a 3 second countdown.
 ![ui](./images/ui.png)
